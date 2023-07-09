@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {useRouter} from "next/navigation";
 
 // const API_BASE_URL = 'https://api-testnet.arttaca.io'; // Replace with your API base URL
-const API_BASE_URL = 'http://localhost:5555'
+const API_BASE_URL = process.env.NEXT_PUBLIC_DATABASE_URL
 interface Order {
     id: string;
     userAddress: string;
@@ -23,18 +24,22 @@ const OrdersPage: React.FC = () => {
         // Other order properties...
     });
 
-    // useEffect(() => {
-    //     fetchOrders();
-    // }, []);
+    const router = useRouter()
 
-    // const fetchOrders = async () => {
-    //     try {
-    //         const response = await axios.get(`${API_BASE_URL}/orders`);
-    //         setOrders(response.data);
-    //     } catch (error) {
-    //         console.error('Error fetching orders:', error);
-    //     }
-    // };
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/orders`);
+            setOrders(response.data);
+            router.refresh()
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+
+    };
 
     const createOrder = async () => {
         try {
@@ -50,6 +55,7 @@ const OrdersPage: React.FC = () => {
         } catch (error) {
             console.error('Error creating order:', error);
         }
+        router.refresh()
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +103,11 @@ const OrdersPage: React.FC = () => {
             {/*</div>*/}
             {/* Other input fields for order properties */}
             <button className={'bg-green-300'} onClick={createOrder}>Create Order</button>
-            {/*<ul>*/}
-            {/*    {orders.map((order) => (*/}
-            {/*        <li key={order.id}>{order.id}</li>*/}
-            {/*    ))}*/}
-            {/*</ul>*/}
+            <ul>
+                {orders.map((order) => (
+                    <li key={order.id}>{order.id}</li>
+                ))}
+            </ul>
         </div>
     );
 };
